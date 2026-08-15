@@ -1,19 +1,24 @@
-import { useState } from 'react'
-import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute.tsx'
+import ErrorPage from './pages/ErrorPage.tsx'
+import HomePage from './pages/HomePage.tsx'
+import LoginPage from './pages/LoginPage.tsx'
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  const handleIncrement = () => {
-    setCount((prevCount) => prevCount + 1)
-  }
-
   return (
-    <>
-      <div className="ticks">{count}</div>
-      <button onClick={handleIncrement}>Increment</button>
-
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/error" element={<ErrorPage />} />
+    </Routes>
   )
 }
 
