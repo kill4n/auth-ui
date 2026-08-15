@@ -1,49 +1,72 @@
-# React + TypeScript + Vite
+# Auth UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend de autenticación construido con **React 19 + TypeScript + Vite**.
 
-Currently, two official plugins are available:
+## Páginas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Ruta | Descripción |
+|---|---|
+| `/login` | Form de email + password |
+| `/home` | Página protegida, muestra "Welcome" |
+| `/error` | Página de error / no autorizado |
 
-## React Compiler
+Flujo: `/` redirige a `/login`. Credenciales válidas → `/home`. Credenciales inválidas o acceso a `/home` sin sesión → `/error`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Credenciales de prueba
 
-## Expanding the ESLint configuration
+El login usa un **servicio mock** que replica el contrato del backend (`POST /api/v1/auth/login`):
 
-If you are developing a production application, we recommend enabling type-aware lint rules by editing `eslint.config.js`:
-
-```js
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-
-export default tseslint.config(
-  { ignores: ['dist'] },
-  {
-    files: ['src/**/*.{ts,tsx}'],
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-    },
-  },
-)
+```
+Email:    admin@test.com
+Password: admin123
 ```
 
-See the [ESLint rules documentation](https://eslint.org/docs/latest/rules/) for the full list of rules and categories.
+## Setup
+
+```bash
+npm install
+npm run dev
+```
+
+Abrí `http://localhost:8080`.
+
+### Variables de entorno
+
+Copiá `.env.example` a `.env` y ajustá si hace falta:
+
+```env
+UI_PORT=8080
+VITE_API_URL=http://localhost:8080
+VITE_PROXY_TARGET=http://localhost:3000
+```
+
+## Scripts
+
+| Comando | Descripción |
+|---|---|
+| `npm run dev` | Dev server con HMR |
+| `npm run build` | Typecheck (`tsc -b`) + build (`vite build`) |
+| `npm run lint` | ESLint |
+| `npm run preview` | Preview del build |
+
+## Estructura
+
+```
+src/
+├── auth/              # Core de autenticación
+│   ├── authService.ts # Mock del login (contrato del backend)
+│   ├── tokenStorage.ts# Wrapper de localStorage (key `auth_token`)
+│   └── AuthContext.tsx# Sesión: AuthProvider + useAuth
+├── components/
+│   └── ProtectedRoute.tsx  # Guard de rutas protegidas
+├── pages/
+│   ├── LoginPage.tsx
+│   ├── HomePage.tsx
+│   └── ErrorPage.tsx
+├── App.tsx            # Definición de rutas
+└── main.tsx           # BrowserRouter + AuthProvider
+```
+
+## Integración con el backend
+
+El mock en `src/auth/authService.ts` reemplaza a la API real. Cuando se integre el backend (`VITE_PROXY_TARGET` ya apunta a `localhost:3000` y el proxy enruta `/api`), solo hay que cambiar la implementación de `login` por un `fetch` a `POST /api/v1/auth/login` — las páginas y el contexto no cambian.
