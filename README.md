@@ -56,15 +56,14 @@ src/
 ├── auth/              # Core de autenticación
 │   ├── authService.ts # Mock del login (contrato del backend)
 │   ├── tokenStorage.ts# Wrapper de localStorage (key `auth_token`)
-│   └── AuthContext.tsx# Sesión: AuthProvider + useAuth
-├── components/
-│   └── ProtectedRoute.tsx  # Guard de rutas protegidas
+│   ├── AuthContext.tsx# Sesión: AuthProvider + useAuth
+│   └── requireAuth.ts # Loader de ruta protegida (redirect a /error sin token)
 ├── pages/
 │   ├── LoginPage.tsx
 │   ├── HomePage.tsx
 │   └── ErrorPage.tsx
-├── App.tsx            # Definición de rutas
-└── main.tsx           # BrowserRouter + AuthProvider
+├── router.tsx         # Definición de rutas (createBrowserRouter)
+└── main.tsx           # RouterProvider + AuthProvider
 ```
 
 ## Integración con el backend

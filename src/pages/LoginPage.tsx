@@ -19,7 +19,7 @@ export default function LoginPage() {
       await login(email, password)
       navigate('/home')
     } catch {
-      navigate('/error')
+      navigate('/error', { state: { reason: 'invalid-credentials' } })
     } finally {
       setIsSubmitting(false)
     }
@@ -80,6 +80,7 @@ export default function LoginPage() {
             name="email"
             type="email"
             autoComplete="email"
+            spellCheck={false}
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -110,6 +111,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
+          aria-live="polite"
           onMouseEnter={() => setIsButtonHovered(true)}
           onMouseLeave={() => setIsButtonHovered(false)}
           style={{
@@ -124,6 +126,8 @@ export default function LoginPage() {
             cursor: isSubmitting ? 'not-allowed' : 'pointer',
             filter: isButtonHovered && !isSubmitting ? 'brightness(0.92)' : undefined,
             opacity: isSubmitting ? 0.7 : 1,
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
             transition: 'filter 120ms ease, opacity 120ms ease',
           }}
         >
