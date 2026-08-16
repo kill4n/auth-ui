@@ -9,37 +9,23 @@ export default function ErrorPage() {
   const isInvalidCredentials = reason === 'invalid-credentials'
 
   return (
-    <main
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '12px',
-        padding: '48px 24px',
-      }}
-    >
-      <h1 style={{ margin: 0, fontSize: '40px' }}>
-        {isInvalidCredentials ? 'Invalid credentials' : 'Unauthorized'}
-      </h1>
-      <p style={{ color: 'var(--text)', maxWidth: '420px' }}>
-        {isInvalidCredentials
-          ? 'The email or password is incorrect. Please try again.'
-          : 'You do not have access to this page. Please sign in again to continue.'}
-      </p>
-      <Link
-        to="/login"
-        style={{
-          marginTop: '8px',
-          color: 'var(--accent)',
-          fontWeight: 600,
-          textDecoration: 'underline',
-          textUnderlineOffset: '2px',
-        }}
-      >
-        Back to login
-      </Link>
+    <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+      <div className="w-full max-w-96 rounded-2xl border border-line bg-surface p-8">
+        <h1 className="m-0 text-2xl font-semibold text-heading">
+          {isInvalidCredentials ? 'Invalid credentials' : 'Unauthorized'}
+        </h1>
+        <p className="mt-2 text-sm text-ink">
+          {isInvalidCredentials
+            ? 'The email or password is incorrect. Please try again.'
+            : 'You do not have access to this page. Please sign in again to continue.'}
+        </p>
+        <Link
+          to="/login"
+          className="mt-6 inline-flex items-center justify-center rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-heading transition hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          Back to login
+        </Link>
+      </div>
     </main>
   )
 }
