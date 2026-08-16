@@ -14,11 +14,11 @@ Flujo: `/` redirige a `/login`. Credenciales válidas → `/home`. Credenciales 
 
 ## Credenciales de prueba
 
-El login usa un **servicio mock** que replica el contrato del backend (`POST /api/v1/auth/login`):
+El login consulta el backend real (`POST /api/v1/auth/login`). Usuario seed del backend:
 
 ```
-Email:    admin@test.com
-Password: admin123
+Email:    demo@demo.com
+Password: demo123
 ```
 
 ## Setup
@@ -54,10 +54,10 @@ VITE_PROXY_TARGET=http://localhost:3000
 ```
 src/
 ├── auth/              # Core de autenticación
-│   ├── authService.ts # Mock del login (contrato del backend)
+│   ├── authService.ts # Cliente de la API real (login + getMe)
 │   ├── tokenStorage.ts# Wrapper de localStorage (key `auth_token`)
-│   ├── AuthContext.tsx# Sesión: AuthProvider + useAuth
-│   └── requireAuth.ts # Loader de ruta protegida (redirect a /error sin token)
+│   ├── AuthContext.tsx# Sesión: AuthProvider + useAuth (restaura con /me)
+│   └── requireAuth.ts # Loader de ruta protegida (valida token con /me)
 ├── pages/
 │   ├── LoginPage.tsx
 │   ├── HomePage.tsx
@@ -68,4 +68,9 @@ src/
 
 ## Integración con el backend
 
-El mock en `src/auth/authService.ts` reemplaza a la API real. Cuando se integre el backend (`VITE_PROXY_TARGET` ya apunta a `localhost:3000` y el proxy enruta `/api`), solo hay que cambiar la implementación de `login` por un `fetch` a `POST /api/v1/auth/login` — las páginas y el contexto no cambian.
+La UI consume el backend real vía el proxy de Vite (`/api` → `VITE_PROXY_TARGET`, por defecto `http://localhost:3000`):
+
+- `POST /api/v1/auth/login` — login (`src/auth/authService.ts`)
+- `GET /api/v1/auth/me` — restaura la sesión al recargar y valida el token en `requireAuth.ts`
+
+El backend debe estar corriendo en el puerto 3000 (`npm run dev` en `../backend`). Si el token expiró (JWT 1h), el guard limpia la sesión y redirige a `/error`.

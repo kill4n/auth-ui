@@ -1,9 +1,18 @@
 import { redirect } from 'react-router-dom'
-import { getToken } from './tokenStorage'
+import { getMe } from './authService'
+import { clearToken, getToken } from './tokenStorage'
 
-export function requireAuth() {
-  if (!getToken()) {
+export async function requireAuth() {
+  const token = getToken()
+  if (token === null) {
     return redirect('/error')
   }
-  return null
+
+  try {
+    await getMe()
+    return null
+  } catch {
+    clearToken()
+    return redirect('/error')
+  }
 }

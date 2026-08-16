@@ -1,8 +1,23 @@
+import { getToken } from './tokenStorage'
+
+export interface Permissions {
+  CanCreateWorkspace: boolean
+  CanViewWorkspace: boolean
+  CanEditWorkspace: boolean
+  CanDeleteWorkspace: boolean
+  CanCreateProjects: boolean
+  CanViewProjects: boolean
+  CanEditProjects: boolean
+  CanDeleteProjects: boolean
+  CanManageUsers: boolean
+}
+
 export interface PublicUser {
   id: string
   email: string
+  name: string
   role: string
-  permissions: string[]
+  permissions: Permissions
 }
 
 export interface LoginResponse {
@@ -10,26 +25,38 @@ export interface LoginResponse {
   user: PublicUser
 }
 
-const VALID_EMAIL = 'admin@test.com'
-const VALID_PASSWORD = 'admin123'
-const LATENCY_MS = 300
+const LOGIN_URL = '/api/v1/auth/login'
+const ME_URL = '/api/v1/auth/me'
 
-export function login(email: string, password: string): Promise<LoginResponse> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-        resolve({
-          token: 'fake-jwt-token.admin@test.com',
-          user: {
-            id: '1',
-            email: VALID_EMAIL,
-            role: 'admin',
-            permissions: ['home:read'],
-          },
-        })
-      } else {
-        reject({ error: 'Credenciales inválidas' })
-      }
-    }, LATENCY_MS)
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  const response = await fetch(LOGIN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
   })
+
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as { error?: string }
+    throw { error: data.error ?? 'Error de autenticación' }
+  }
+
+  return (await response.json()) as LoginResponse
+}
+
+export async function getMe(): Promise<PublicUser> {
+  const token = getToken()
+  if (token === null) {
+    throw new Error('No hay sesión activa')
+  }
+
+  const response = await fetch(ME_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) {
+    throw new Error('No autorizado')
+  }
+
+  const data = (await response.json()) as { user: PublicUser }
+  return data.user
 }
